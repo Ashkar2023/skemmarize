@@ -2,7 +2,6 @@ package skemmarize.repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -28,10 +27,8 @@ public class UserRepository {
 
         try {
             User user = jdbc.queryForObject(query, new UserRowMapper(), email);
-            return Optional.ofNullable(user);
+            return Optional.of(user);
         } catch (EmptyResultDataAccessException e) {
-            // No result found - return empty Optional
-            // Let other exceptions bubble up to service layer
             return Optional.empty();
         }
     }

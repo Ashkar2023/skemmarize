@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import skemmarize.exception.NotFoundException;
 import skemmarize.model.User;
 import skemmarize.repository.UserRepository;
 
@@ -18,7 +19,7 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + email));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     public User createUser(String email, String username) {
