@@ -78,6 +78,19 @@ public class JwtTokenService {
         return this.generateToken(user, true);
     }
 
+    public String generateAccessTokenFromEmail(String email) {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("email", email);
+        
+        CustomOAuth2User user = new CustomOAuth2User(
+            java.util.Collections.emptyList(),
+            attributes,
+            "email"
+        );
+        
+        return this.generateToken(user, false);
+    }
+
     public JWTClaimsSet validateToken(String token, boolean isRefresh) {
         byte[] keyBytes = getSigningKeyBytes(this.JwtSecret);
 
