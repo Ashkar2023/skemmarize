@@ -1,7 +1,9 @@
 package skemmarize.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,30 +12,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import skemmarize.exception.JwtValidationException;
 import skemmarize.security.JwtTokenService;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    
+
     @Autowired
     private JwtTokenService jwtTokenService;
 
     @GetMapping("/refresh")
     public ResponseEntity<Map<String, Object>> refreshJwtToken(
             HttpServletRequest request,
-            HttpServletResponse response){
+            HttpServletResponse response) {
 
         // Extract refresh token from cookie
         String refreshToken = null;
         Cookie[] cookies = request.getCookies();
-        
+
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("rjwt".equals(cookie.getName())) {
@@ -79,12 +83,42 @@ public class AuthController {
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(15 * 60); // 15 minutes
         response.addCookie(accessTokenCookie);
-        
+
         // Return success response
         Map<String, Object> body = new HashMap<>();
         body.put("message", "access token refreshed");
         body.put("error", null);
 
         return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> confirmOnLaunch(
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
+        Cookie[] cookies = request.getCookies();
+
+        Cookie ajwt = Arrays.stream(cookies)
+                .filter(c -> "ajwt".equals(c.getName()))
+                .findFirst()
+                .orElse(null);
+
+        if(ajwt==null){
+            throw new JwtValidationException("access token not found");
+        }
+
+        JWTClaimsSet claims = jwtTokenService.validateToken(ajwt.getValue(), false);
+
+        if (claims == null) {
+            throw new JwtValidationException("unauthorized");
+        }
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("message", "confirmed");
+        body.put("error", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 }
