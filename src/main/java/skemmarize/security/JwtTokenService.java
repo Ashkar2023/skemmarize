@@ -39,18 +39,16 @@ public class JwtTokenService {
         return Base64.getDecoder().decode(secret);
     }
 
-    private String generateToken(CustomOAuth2User user, Boolean isRefresh) {
+    private String generateToken(CustomOAuth2User user, String userId, Boolean isRefresh) {
         long expirationMs = isRefresh ? this.jwtExpirationRefresh : this.jwtExpirationAccess;
-
-        Map<String, Object> claims = new HashMap<>();
-        System.out.println("JWT Claims: "+claims);
 
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + expirationMs);
 
         try {
             JWTClaimsSet claimSet = new JWTClaimsSet.Builder()
-            .subject(user.getEmail())
+            .claim("email", user.getEmail())
+            .subject(userId)
             .issueTime(now)
             .expirationTime(expirationDate)
             .build();
@@ -70,15 +68,15 @@ public class JwtTokenService {
         }        
     }
 
-    public String generateAccessToken(CustomOAuth2User user){
-        return this.generateToken(user, false);
+    public String generateAccessToken(CustomOAuth2User user, String userId){
+        return this.generateToken(user, userId, false);
     }
 
-    public String generateRefreshToken(CustomOAuth2User user){
-        return this.generateToken(user, true);
+    public String generateRefreshToken(CustomOAuth2User user, String userId){
+        return this.generateToken(user, userId, true);
     }
 
-    public String generateAccessTokenFromEmail(String email) {
+    public String generateAccessTokenFromEmail(String email, String userId) {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("email", email);
         
@@ -88,7 +86,7 @@ public class JwtTokenService {
             "email"
         );
         
-        return this.generateToken(user, false);
+        return this.generateToken(user, userId, false);
     }
 
     public JWTClaimsSet validateToken(String token, boolean isRefresh) {
@@ -104,6 +102,7 @@ public class JwtTokenService {
             }
 
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+            
             Date exp = claims.getExpirationTime();
             if (exp == null) {
                 System.err.println("JWT Validation Error: Missing expiration claim.");

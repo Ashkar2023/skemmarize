@@ -6,6 +6,7 @@ public class User {
     private long id;
     private String email;
     private String username;
+    private String avatar;
 
     public User(String email, String username) {
         this.username = username;
@@ -35,4 +36,13 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
+    
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
 }

@@ -29,12 +29,16 @@ public class SecurityConfig {
     @Autowired
     public OAuth2SuccessHandler oAuth2SuccessHandler;
 
+    @Autowired
+    public UnauthorizedHandler unauthorizedHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors->cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptions->exceptions.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(
                         (requests) -> requests
                                 .requestMatchers("/auth/**").permitAll()

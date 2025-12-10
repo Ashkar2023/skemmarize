@@ -21,8 +21,8 @@ public class ChatRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Chat> findByUserId(Long userId) {
-        String query = "SELECT * FROM chats WHERE user_id = ?";
+    public List<Chat> findChatsByUserId(Long userId) {
+        String query = "SELECT * FROM chats WHERE user_id = ? ORDER BY id DESC";
         return jdbcTemplate.query(query, new ChatRowMapper(), userId);
     }
 

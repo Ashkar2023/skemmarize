@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: skmdb
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ppass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  skemmarize-api:
+    build: ashkar2023/skemmarize-api
+    container_name: skemmarize-api
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/skmdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: pass
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4200}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      AWS_S3_URL: ${AWS_S3_URL}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+    ports:
+      - "8080:8080"  # Expose for host nginx
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: skemmarize-network
+    driver: bridge
+
+volumes:
+  mysql_data:

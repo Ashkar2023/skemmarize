@@ -16,6 +16,9 @@ public class ChatRowMapper implements RowMapper<Chat> {
                 rs.getString("image_url"),
                 rs.getString("response")
             );
+
+        chat.setCreatedAt(rs.getTimestamp("created_at"));
+        
         return chat;
     }
 }

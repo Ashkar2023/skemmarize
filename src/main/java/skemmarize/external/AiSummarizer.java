@@ -11,20 +11,20 @@ import org.springframework.stereotype.Component;
 public class AiSummarizer{
     private final Client client;
     private static final String MODEL_NAME = "gemini-2.5-flash";
-    private final String defaultPrompt = "Summarize this image";
+    private final String defaultPrompt = "Summarize this image strictly in no more than 100 words. The response should be in plain text.";
 
-    public AiSummarizer(){       
-        this.client = Client.builder().apiKey(System.getProperty("GOOGLE_API_KEY")).build();
+    public AiSummarizer(Client gClient){       
+        this.client = gClient;
     }
 
-    public String generate(byte[] imageBytes, String prompt){
-        if (prompt == null) {
-            prompt = this.defaultPrompt;
+    public String generate(byte[] imageBytes, String promptOverride){
+        if (promptOverride == null) {
+            promptOverride = this.defaultPrompt;
         }
         // byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
         Content content = Content.fromParts(
-            Part.fromText(prompt),
+            Part.fromText(promptOverride),
             Part.fromBytes(imageBytes, "image/jpeg")
         );
         

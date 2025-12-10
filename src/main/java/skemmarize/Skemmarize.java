@@ -11,7 +11,21 @@ public class Skemmarize {
     public static void main(String[] args) {
 
         Dotenv env = Dotenv.load();
-        env.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+        
+        // Load all .env variables as system properties
+        env.entries().forEach(e -> 
+            System.setProperty(e.getKey(), e.getValue())
+        );
+        
+        String awsAccessKey = env.get("AWS_ACCESS_KEY_ID");
+        String awsSecretKey = env.get("AWS_SECRET_ACCESS_KEY");
+        
+        if (awsAccessKey != null) {
+            System.setProperty("aws.accessKeyId", awsAccessKey);
+        }
+        if (awsSecretKey != null) {
+            System.setProperty("aws.secretAccessKey", awsSecretKey);
+        }
 
         SpringApplication.run(Skemmarize.class, args);
     }

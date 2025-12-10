@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -37,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName() == "ajwt") {
+                if (cookie.getName().equals("ajwt")) {
                     accessToken = cookie.getValue();
                 }
             }
@@ -54,11 +52,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new JwtValidationException("Invalid or expired JWT token");
         }
 
-        String email = claimsSet.getSubject();
+        String email = (String) claimsSet.getClaim("email");
+        String userId = claimsSet.getSubject();
 
-        UserDetails userDetails = new User(email,"",Collections.emptyList());
+        JwtPrincipal jwtPrincipal = new JwtPrincipal(Long.parseLong(userId), email); 
         
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, userDetails);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(jwtPrincipal, null, Collections.emptyList());
 
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

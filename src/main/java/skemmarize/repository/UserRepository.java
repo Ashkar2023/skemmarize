@@ -33,8 +33,8 @@ public class UserRepository {
         }
     }
 
-    public User save(String email, String username) {
-        String query = "INSERT INTO users (email, username) VALUES (?, ?)";
+    public User save(String email, String username, String avatarUrl) {
+        String query = "INSERT INTO users (email, username, avatar) VALUES (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         // Let database exceptions bubble up to service layer
@@ -42,12 +42,14 @@ public class UserRepository {
             PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, email);
             ps.setString(2, username);
+            ps.setString(3, avatarUrl);
             return ps;
         }, keyHolder);
 
         Long id = keyHolder.getKey().longValue();
         User freshUser = new User(email, username);
         freshUser.setId(id);
+        freshUser.setAvatar(avatarUrl);
 
         return freshUser;
     }

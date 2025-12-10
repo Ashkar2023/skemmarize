@@ -1,10 +1,13 @@
 package skemmarize.model;
 
+import java.sql.Timestamp;
+
 public class Chat {
     private Long id;    
     private Long userId;
     private String imageUrl;
     private String response;
+    private Timestamp createdAt;
 
     
     public Chat(Long id, Long userId, String imageUrl, String response) {
@@ -45,5 +48,14 @@ public class Chat {
     public void setResponse(String response) {
         this.response = response;
     }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
 
 }

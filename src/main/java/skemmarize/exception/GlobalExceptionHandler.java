@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -48,6 +49,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiError> handleNoHandlerFound(NoHandlerFoundException ex) {
+        ApiError error = new ApiError(HttpStatus.NOT_FOUND.value(), "Not found");
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 
     // basic
     @ExceptionHandler(Exception.class)

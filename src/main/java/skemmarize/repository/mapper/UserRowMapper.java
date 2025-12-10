@@ -14,9 +14,11 @@ public class UserRowMapper implements RowMapper<User> {
         long id = rs.getLong("id");
         String username = rs.getString("username");
         String email = rs.getString("email");
+        String avatar = rs.getString("avatar");
 
         User user = new User(email, username);
         user.setId(id);
+        user.setAvatar(avatar);
         
         return user;
     }

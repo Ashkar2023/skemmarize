@@ -3,16 +3,13 @@ package skemmarize.controller;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -20,7 +17,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import skemmarize.exception.JwtValidationException;
+import skemmarize.external.ImageProcessor;
+import skemmarize.model.User;
 import skemmarize.security.JwtTokenService;
+import skemmarize.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,6 +28,12 @@ public class AuthController {
 
     @Autowired
     private JwtTokenService jwtTokenService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ImageProcessor imageProcessor;
 
     @GetMapping("/refresh")
     public ResponseEntity<Map<String, Object>> refreshJwtToken(
@@ -66,7 +72,15 @@ public class AuthController {
         }
 
         // Extract email and generate new access token
-        String email = claims.getSubject();
+        String userId = claims.getSubject();
+        if (userId == null) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", null);
+            body.put("error", "Invalid token: missing subject");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+        }
+
+        String email = (String) claims.getClaim("email");
         if (email == null) {
             Map<String, Object> body = new HashMap<>();
             body.put("message", null);
@@ -74,12 +88,12 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
 
-        String newAccessToken = jwtTokenService.generateAccessTokenFromEmail(email);
+        String newAccessToken = jwtTokenService.generateAccessTokenFromEmail(email, userId);
 
         // Set new access token cookie
         Cookie accessTokenCookie = new Cookie("ajwt", newAccessToken);
         accessTokenCookie.setHttpOnly(true);
-        // accessTokenCookie.setSecure(true);
+        // accessTokenCookie.setSecure(true); //TODO
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(15 * 60); // 15 minutes
         response.addCookie(accessTokenCookie);
@@ -104,7 +118,7 @@ public class AuthController {
                 .findFirst()
                 .orElse(null);
 
-        if(ajwt==null){
+        if (ajwt == null) {
             throw new JwtValidationException("access token not found");
         }
 
@@ -114,11 +128,40 @@ public class AuthController {
             throw new JwtValidationException("unauthorized");
         }
 
-        Map<String, Object> body = new HashMap<>();
+        User dbUser = this.userService.getUserByEmail((String) claims.getClaim("email"));
 
+        dbUser.setAvatar(this.imageProcessor.generatePresignedUrl(dbUser.getAvatar()));
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("user", dbUser);
         body.put("message", "confirmed");
         body.put("error", null);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<Map<String, Object>> logoutAndCleanup(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setValue("");
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                response.addCookie(cookie);
+            }
+        }
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("message", "logout success");
+        body.put("error", null);
+
+        return ResponseEntity.ok(body);
     }
 }
