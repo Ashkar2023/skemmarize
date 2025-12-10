@@ -26,7 +26,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Autowired
     private UserService userService;
 
-    @Value("${app.frontend.url:http://localhost:4200}")
+    @Value("${frontend.url:http://localhost:4200}")
     private String frontendUrl;
 
     @Override
@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // Set access token cookie
         Cookie accessTokenCookie = new Cookie("ajwt", accessToken);
         accessTokenCookie.setHttpOnly(true);
-        // accessTokenCookie.setSecure(true);
+        accessTokenCookie.setSecure(true);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(15 * 60);
         response.addCookie(accessTokenCookie);
@@ -69,7 +69,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // Set refresh token cookie
         Cookie refreshTokenCookie = new Cookie("rjwt", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
-        // refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(7 * 86400);
         response.addCookie(refreshTokenCookie);

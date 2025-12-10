@@ -93,7 +93,7 @@ public class AuthController {
         // Set new access token cookie
         Cookie accessTokenCookie = new Cookie("ajwt", newAccessToken);
         accessTokenCookie.setHttpOnly(true);
-        // accessTokenCookie.setSecure(true); //TODO
+        accessTokenCookie.setSecure(true);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(15 * 60); // 15 minutes
         response.addCookie(accessTokenCookie);
