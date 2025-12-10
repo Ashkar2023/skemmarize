@@ -19,7 +19,8 @@ public class Skemmarize {
         
         String awsAccessKey = env.get("AWS_ACCESS_KEY_ID");
         String awsSecretKey = env.get("AWS_SECRET_ACCESS_KEY");
-        
+        System.setProperty("OPENAI_API_KEY", env.get("OPENAI_API_KEY"));
+
         if (awsAccessKey != null) {
             System.setProperty("aws.accessKeyId", awsAccessKey);
         }

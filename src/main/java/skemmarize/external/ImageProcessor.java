@@ -51,4 +51,8 @@ public class ImageProcessor {
 
         return java.util.Base64.getEncoder().encodeToString(imageBytes);
     }
+
+    public static String encodeImageToBase64(byte[] imageBytes) throws IOException {
+        return java.util.Base64.getEncoder().encodeToString(imageBytes);
+    }
 }
