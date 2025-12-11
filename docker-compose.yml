@@ -37,6 +37,7 @@ services:
       AWS_S3_URL: ${AWS_S3_URL}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:
       - "8080:8080"  # Expose for host nginx
     networks:
