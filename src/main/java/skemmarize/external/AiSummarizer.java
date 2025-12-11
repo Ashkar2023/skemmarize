@@ -118,6 +118,7 @@ public class AiSummarizer {
 
         Map<String, Object> imageContent = new HashMap<>();
         imageContent.put("type", "input_image");
+        System.out.println("Base64: "+base64Image.substring(0, 50));
         imageContent.put("image_url", "data:image/jpeg;base64," + base64Image);
 
         Map<String, Object> inputMap = new HashMap<>();

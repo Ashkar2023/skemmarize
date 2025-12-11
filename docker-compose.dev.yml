@@ -27,7 +27,7 @@ services:
             retries: 20
             start_period: 30s
 
-    skemmarize-api:
+    api:
         build: .
         container_name: skemmarize-api
         depends_on:

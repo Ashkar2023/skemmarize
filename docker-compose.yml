@@ -19,8 +19,9 @@ services:
       retries: 20
       start_period: 30s
 
-  skemmarize-api:
+  api:
     image: ashkar2023/skemmarize-api:openai
+    pull_policy: always
     container_name: skemmarize-api
     depends_on:
       mysql:
