@@ -20,7 +20,7 @@ services:
       start_period: 30s
 
   skemmarize-api:
-    image: ashkar2023/skemmarize-api:${IMAGE_TAG:-latest}
+    image: ashkar2023/skemmarize-api:openai
     container_name: skemmarize-api
     depends_on:
       mysql:
